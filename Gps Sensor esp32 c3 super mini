@@ -1,0 +1,36 @@
+#include <TinyGPS++.h>
+#include <HardwareSerial.h>
+
+TinyGPSPlus gps;  // Membuat objek TinyGPS++
+HardwareSerial mySerial(1);  // Gunakan Serial1 untuk GPS (pin 16 dan 17)
+
+void setup() {
+  // Memulai komunikasi serial dengan ESP32
+  Serial.begin(115200);
+  
+  // Memulai komunikasi serial dengan GPS
+  mySerial.begin(9600, SERIAL_8N1, 20, 21);  // RX=16, TX=17 (sesuaikan dengan pin yang Anda gunakan)
+  
+  Serial.println("GPS Module is initializing...");
+}
+
+void loop() {
+  // Membaca data dari GPS
+  while (mySerial.available() > 0) {
+    gps.encode(mySerial.read());  // Menyandikan data GPS yang diterima
+    
+    if (gps.location.isUpdated()) {  // Jika ada update lokasi baru
+      float latitude = gps.location.lat();    // Latitude
+      float longitude = gps.location.lng();  // Longitude
+      float altitude = gps.altitude.meters(); // Altitude
+
+      // Menampilkan informasi GPS ke Serial Monitor
+      Serial.print("Latitude: ");
+      Serial.println(latitude, 6);  // Menampilkan latitude dengan 6 digit desimal
+      Serial.print("Longitude: ");
+      Serial.println(longitude, 6); // Menampilkan longitude dengan 6 digit desimal
+      Serial.print("Altitude: ");
+      Serial.println(altitude);     // Menampilkan altitude (dalam meter)
+    }
+  }
+}
